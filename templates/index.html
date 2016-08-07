@@ -1,0 +1,14 @@
+<title>{% block title %}{% endblock %}</title>
+
+{% if user %}
+
+    {% if user.email()=="ngchenghow@gmail.com"%}
+        {{ user.email() }}
+    {% else %}
+        You are not administrator.
+    {% endif %}
+
+{% else %}
+    Welcome, if you are administrator, please <a href="{{ login_url }}">sign in.</a> <br>
+    please do not login with public computer.
+{% endif %}
