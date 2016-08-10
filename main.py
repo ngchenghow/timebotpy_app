@@ -10,7 +10,7 @@ class Index(webapp2.RequestHandler):
         head,title,body=page.html_snippet()
 
         title.add_text("this is title")
-        
+
 
         self.response.write(page.get_html())
 
