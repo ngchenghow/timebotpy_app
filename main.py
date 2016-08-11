@@ -2,15 +2,19 @@
 
 import webapp2
 from page import Page
+from material_design import MDLPage
 
 class Index(webapp2.RequestHandler):
-
     def get(self):
-        page=Page()
-        head,title,body=page.html_snippet()
+        page=MDLPage("TimebotPy - Home")
 
-        title.add_text("this is title")
+        # grid in total of 12
+        page.add_grid((4,4,4))
 
+        #add buttons to row cols..
+        page.add_flat_button("Button1").next()
+        page.add_fab_button("add").add_fab_button("face").next()
+        page.add_raised_button("Button3").next()
 
         self.response.write(page.get_html())
 
