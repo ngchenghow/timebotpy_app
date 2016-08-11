@@ -1,21 +1,19 @@
 #!/usr/bin/env python
 
 class Tag(object):
-    attrs={}
-    name=""
-    childs=[]
-    text=""
-    close_tag=True
 
-    data=""
-
-    def __init__(self,tag_name):
+    def __init__(self,tag_name=''):
         self.name=tag_name
         self.close_tag=True
         self.attrs={}
         self.childs=[]
         self.text=""
+        self.data=""
         pre_tabs = ""
+        self.flaten=False
+
+    def flat(self,b=True):
+        self.flaten=b
 
     def add_tag(self,tag):
         self.childs.append(tag)
@@ -24,19 +22,28 @@ class Tag(object):
     def set_attrs(self,attrs_dict):
         self.attrs=attrs_dict
 
+    def add_class(self,class_name):
+        if not 'class' in self.attrs:
+            self.attrs['class']=''
+
+        self.attrs['class']+=" %s" % class_name
+        self.attrs['class']=self.attrs['class'].strip()
+
+    def add_attr(self,attr_key,attr_value):
+        self.attrs[attr_key]=attr_value
+
     #add with html tag string
-    def add_tag_data(self,data):
-        new_tag=Tag('')
+    def add_tag_data(self,new_tag,data):
         new_tag.data=data
         return self.add_tag(new_tag)
 
-    def add_tag_name(self,tag_name,attrs={},close_tag=True):
-        new_tag=Tag(tag_name)
-        new_tag.set_attrs(attrs)
+    def add_tag_name(self,new_tag,attrs={},close_tag=True):
+        if attrs:
+            new_tag.set_attrs(attrs)
         new_tag.close_tag=close_tag
         return self.add_tag(new_tag)
 
-    def add_text(self,t):
+    def set_text(self,t):
         self.text=t
 
     def render(self,pre=0):
@@ -69,6 +76,11 @@ class Tag(object):
             result+="%s<%s%s>" % (pre_tabs,self.name,attrs_str)
             result += "</%s>\n" % (self.name) if self.close_tag else "\n"
 
+        if self.flaten:
+            result=result.replace('\t','')
+            result=pre_tabs+result.replace('\n','')+'\n'
+            return result
+
         return result
 
 
@@ -85,14 +97,14 @@ class Page(Tag):
         return self.doc_type+'\n'+self.render()
 
     def html_snippet(self):
-        head = self.add_tag_name("head")
-        title = head.add_tag_name("title")
-        body = self.add_tag_name("body")
+        head = self.add_tag_name(Tag("head"))
+        title = head.add_tag_name(Tag("title"))
+        body = self.add_tag_name(Tag("body"))
 
         return (head,title,body)
 
     def add_stylesheet(self,url):
-        self.head.add_tag_name("link", {'rel': 'stylesheet','href': url},False)
+        self.head.add_tag_name(Tag("link"), {'rel': 'stylesheet','href': url})
 
     def add_js(self,url,defer=False):
         if defer:
@@ -100,4 +112,4 @@ class Page(Tag):
         else:
             attrs={'src': url}
 
-        tag=self.head.add_tag_name("script", attrs,True)
+        self.head.add_tag_name(Tag("script"), attrs,True)
